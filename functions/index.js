@@ -1,9 +1,8 @@
-
 // Bring in Firebase credentials
 const config = require("./util/config");
 
-// Bring in and intialize Firebase 
-const firebase = require('firebase');
+// Bring in and intialize Firebase
+const firebase = require("firebase");
 firebase.initializeApp(config);
 
 // Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers
@@ -20,6 +19,8 @@ admin.initializeApp({
   databaseURL: "https://newster-ac2aa.firebaseio.com"
 });
 
+const db = admin.firestore();
+
 // Bring in Express
 const app = require("express")();
 
@@ -27,11 +28,8 @@ const app = require("express")();
 const cors = require("cors");
 app.use(cors());
 
-
 app.get("/posts", (req, res) => {
-  admin
-    .firestore()
-    .collection("posts")
+  db.collection("posts")
     .orderBy("createdAt", "desc")
     .get()
     .then(data => {
@@ -66,9 +64,7 @@ app.post("/post", (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  admin
-    .firestore()
-    .collection("posts")
+  db.collection("posts")
     .add(newPost)
     .then(doc => {
       res.json({ message: `document ${doc.id} created successfully` });
@@ -79,24 +75,36 @@ app.post("/post", (req, res) => {
     });
 });
 
-app.post('/signup', (req, res) => {
-    const newUser = {
-        email: req.body.email,
-        password: req.body.password,
-        confirmPassword: req.body.confirmPassword,
-        handle: req.body.handle
-    };
+app.post("/signup", (req, res) => {
+  const newUser = {
+    email: req.body.email,
+    password: req.body.password,
+    confirmPassword: req.body.confirmPassword,
+    handle: req.body.handle
+  };
 
-    // TODO - validate data
-
-    firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
-        .then(data => {
-            return res.status(201).json({ message: `user ${data.user.uid} signed up successfully`});
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ error: err.code });
-        })
+  // TODO - validate data
+  db.doc(`/users/${newUser.handle}`)
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        return res.status(400).json({ handle: "this handle is already taken" });
+      } else {
+        return firebase
+          .auth()
+          .createUserWithEmailAndPassword(newUser.email, newUser.password);
+      }
+    })
+    .then(data => {
+      return data.user.getIdToken();
+    })
+    .then(token => {
+      return res.status(201).json({ token });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
 });
 
 exports.api = functions.https.onRequest(app);
