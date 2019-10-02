@@ -1,4 +1,13 @@
 let db = {
+    posts: [
+      {
+        userHandle: 'user',
+        body: 'This is a sample scream',
+        createdAt: '2019-03-15T10:59:52.798Z',
+        likeCount: 5,
+        commentCount: 3
+      }
+    ],
     users: [
       {
         userId: 'dh23ggj5h32g543j5gf43',
@@ -9,15 +18,6 @@ let db = {
         bio: 'Hello, my name is user, nice to meet you',
         website: 'https://user.com',
         location: 'Lonodn, UK'
-      }
-    ],
-    screams: [
-      {
-        userHandle: 'user',
-        body: 'This is a sample scream',
-        createdAt: '2019-03-15T10:59:52.798Z',
-        likeCount: 5,
-        commentCount: 3
       }
     ]
   };
