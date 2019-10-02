@@ -51,7 +51,7 @@ app.get("/posts", (req, res) => {
     })
     .catch(err => {
       console.error(err);
-      res.status("500").json({ error: err.code });
+      res.status(500).json({ error: err.code });
     });
 });
 
@@ -74,9 +74,29 @@ app.post("/post", (req, res) => {
       res.json({ message: `document ${doc.id} created successfully` });
     })
     .catch(err => {
-      res.status("500").json({ error: "something went wrong" });
+      res.status(500).json({ error: "something went wrong" });
       console.error(err);
     });
+});
+
+app.post('/signup', (req, res) => {
+    const newUser = {
+        email: req.body.email,
+        password: req.body.password,
+        confirmPassword: req.body.confirmPassword,
+        handle: req.body.handle
+    };
+
+    // TODO - validate data
+
+    firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+        .then(data => {
+            return res.status(201).json({ message: `user ${data.user.uid} signed up successfully`});
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: err.code });
+        })
 });
 
 exports.api = functions.https.onRequest(app);
