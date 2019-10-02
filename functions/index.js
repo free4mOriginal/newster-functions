@@ -1,37 +1,64 @@
+const config = require("./util/config");
+
 // The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
 const functions = require("firebase-functions");
-// const config = require("/util/config");
 
 // The Firebase Admin SDK to access the Firebase Realtime Database.
 const admin = require("firebase-admin");
 
-var serviceAccount = require("./serviceAccountKey.json");
+// API key and service account info included
+var serviceAccount = require("./util/serviceAccountKey.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://newster-ac2aa.firebaseio.com"
 });
 
-exports.getPosts = functions.https.onRequest((req, res) => {
+// bring in Express
+const app = require("express")();
+
+// CORS
+const cors = require("cors");
+app.use(cors());
+
+const firebase = require('firebase');
+firebase.initializeApp(config);
+
+app.get("/posts", (req, res) => {
   admin
     .firestore()
     .collection("posts")
+    .orderBy("createdAt", "desc")
     .get()
     .then(data => {
       let posts = [];
       data.forEach(doc => {
-        posts.push(doc.data());
+        posts.push({
+          screamId: doc.id,
+          body: doc.data().body,
+          userHandle: doc.data().userHandle,
+          createdAt: doc.data().createdAt,
+          commentCount: doc.data().commentCount,
+          likeCount: doc.data().likeCount
+        });
       });
       return res.json(posts);
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      console.error(err);
+      res.status("500").json({ error: err.code });
+    });
 });
 
-exports.createPost = functions.https.onRequest((req, res) => {
+app.post("/post", (req, res) => {
+  if (req.body.body.trim() === "") {
+    return res.status(400).json({ body: "Body must not be empty" });
+  }
+
   const newPost = {
     body: req.body.body,
     userHandle: req.body.userHandle,
-    createdAt: admin.firestore.Timestamp.fromDate(new Date())
+    createdAt: new Date().toISOString()
   };
 
   admin
@@ -46,3 +73,5 @@ exports.createPost = functions.https.onRequest((req, res) => {
       console.error(err);
     });
 });
+
+exports.api = functions.https.onRequest(app);
