@@ -67,4 +67,5 @@ node_modules/
 .DS_Store
 .cache
 dist
-functions/serviceAccountKey.json
+functions/util/serviceAccountKey.json
+functions/util/config.js

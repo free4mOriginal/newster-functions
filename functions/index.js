@@ -33,14 +33,15 @@ app.get("/posts", (req, res) => {
     .then(data => {
       let posts = [];
       data.forEach(doc => {
-        posts.push({
-          screamId: doc.id,
-          body: doc.data().body,
-          userHandle: doc.data().userHandle,
-          createdAt: doc.data().createdAt,
-          commentCount: doc.data().commentCount,
-          likeCount: doc.data().likeCount
-        });
+        posts.push({ ...doc.data() });
+        // posts.push({
+        //   screamId: doc.id,
+        //   body: doc.data().body,
+        //   userHandle: doc.data().userHandle,
+        //   createdAt: doc.data().createdAt,
+        //   commentCount: doc.data().commentCount,
+        //   likeCount: doc.data().likeCount
+        // });
       });
       return res.json(posts);
     })
