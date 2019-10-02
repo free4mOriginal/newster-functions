@@ -1,12 +1,18 @@
+
+// Bring in Firebase credentials
 const config = require("./util/config");
 
-// The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
+// Bring in and intialize Firebase 
+const firebase = require('firebase');
+firebase.initializeApp(config);
+
+// Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers
 const functions = require("firebase-functions");
 
-// The Firebase Admin SDK to access the Firebase Realtime Database.
+// Firebase Admin SDK to access the Firebase Realtime Database
 const admin = require("firebase-admin");
 
-// API key and service account info included
+// Include service account info
 var serviceAccount = require("./util/serviceAccountKey.json");
 
 admin.initializeApp({
@@ -14,15 +20,13 @@ admin.initializeApp({
   databaseURL: "https://newster-ac2aa.firebaseio.com"
 });
 
-// bring in Express
+// Bring in Express
 const app = require("express")();
 
-// CORS
+// Bring in cors
 const cors = require("cors");
 app.use(cors());
 
-const firebase = require('firebase');
-firebase.initializeApp(config);
 
 app.get("/posts", (req, res) => {
   admin
