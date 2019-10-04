@@ -28,6 +28,7 @@ const app = require("express")();
 const cors = require("cors");
 app.use(cors());
 
+// GET all posts route:
 app.get("/posts", (req, res) => {
   db.collection("posts")
     .orderBy("createdAt", "desc")
@@ -53,6 +54,7 @@ app.get("/posts", (req, res) => {
     });
 });
 
+// Create new post route:
 app.post("/post", (req, res) => {
   if (req.body.body.trim() === "") {
     return res.status(400).json({ body: "Body must not be empty" });
@@ -75,6 +77,10 @@ app.post("/post", (req, res) => {
     });
 });
 
+// Checks if a supplied string is empty and returns true or false:
+const isEmpty = string => string.trim() === '' ? true : false;
+
+// Signup route:
 app.post("/signup", (req, res) => {
   const newUser = {
     email: req.body.email,
