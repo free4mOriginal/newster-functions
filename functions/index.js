@@ -94,7 +94,15 @@ app.post("/signup", (req, res) => {
 
   let errors = {};
 
-  if (isEmpty(newUser.email)) return errors.email = 'Email must not be empty';
+  if (isEmpty(newUser.email)) {
+    errors.email = 'Email must not be empty';
+  } else if (!isEmail(newUser.email)) {
+    errors.email = 'Must be a valid email address';
+  }
+
+  if (isEmpty(newUser.password)) errors.password = 'Must not be empty';
+  if (isEmpty(newUser.confirmPassword)) errors.confirmPassword = 'Must not be empty';
+  if (newUser.password !== newUser.confirmPassword) errors.confirmPassword = 'Passwords do not match';
 
   let token, userId;
   db.doc(`/users/${newUser.handle}`)
