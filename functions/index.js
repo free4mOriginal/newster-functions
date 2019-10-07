@@ -150,6 +150,10 @@ app.post("/signup", (req, res) => {
 
 // Login route:
 app.post("/login", (req, res) => {
+  if (req.body.body.trim() === '') {
+    return res.status(400).json({ body: 'Body must not be empty' });
+  }
+  
   const user = {
     email: req.body.email,
     password: req.body.password
