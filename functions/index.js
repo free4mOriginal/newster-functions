@@ -54,8 +54,33 @@ app.get("/posts", (req, res) => {
     });
 });
 
-// Create new post route:
-app.post("/post", (req, res) => {
+// Authentication
+const FBAuth = (req, res, next) => {
+  let idToken;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    idToken = req.headers.authorization.split('Bearer ')[1];
+  } else {
+    console.error('No token found');
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  admin.auth().verifyIdToken(idToken)
+    .then(decodedIdToken => {
+      req.user = decodedIdToken;
+      return db.collection('users')
+        .where('userId', '===', req.user.uid)
+        .limit(1)
+        .get();
+    })
+    .then(data => {
+      req.user.handle = data.docs[0].data().handle;
+      return next();
+    })
+    .catch()
+};
+
+// Create new post
+app.post("/post", FBAuth, (req, res) => {
   if (req.body.body.trim() === "") {
     return res.status(400).json({ body: "Body must not be empty" });
   }
@@ -88,7 +113,7 @@ const isEmail = email =>
     ? true
     : false;
 
-// Signup route:
+// Signup
 app.post("/signup", (req, res) => {
   const newUser = {
     email: req.body.email,
@@ -148,7 +173,7 @@ app.post("/signup", (req, res) => {
     });
 });
 
-// Login route:
+// Login
 app.post("/login", (req, res) => {
   const user = {
     email: req.body.email,
