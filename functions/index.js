@@ -10,7 +10,7 @@ app.use(cors());
 
 const FBAuth = require('./util/fbAuth');
 const { getAllPosts, postOnePost } = require("./handlers/posts");
-const { signup, login } = require("./handlers/users");
+const { signup, login, uploadImage } = require("./handlers/users");
 
 // POST ROUTES
 // GET all posts
@@ -23,5 +23,7 @@ app.post("/post", FBAuth, postOnePost);
 app.post("/signup", signup);
 // Login
 app.post("/login", login);
+// Image upload
+app.post('/user/image', FBAuth, uploadImage);
 
 exports.api = functions.https.onRequest(app);

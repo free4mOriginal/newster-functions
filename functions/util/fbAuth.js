@@ -1,8 +1,5 @@
 // Bring in admin
-const { admin } = require('./admin');
-
-// Bring in db
-const { db } = require("../util/admin");
+const { admin, db } = require('./admin');
 
 module.exports = (req, res, next) => {
     let idToken;
